@@ -1497,6 +1497,8 @@ void ProcessGroupNCCL::heartbeatMonitor() {
     dumpPipe.emplace(rank_);
   }
   while (true) {
+    LOG(ERROR) << logPrefix()
+               << "Still alive.";
     // This won't have any lock since this lock is only used here.
     // Please be aware that mutex `monitorMutex_` should not be used
     // somewhere else to avoid the deadlock.
@@ -1581,7 +1583,8 @@ void ProcessGroupNCCL::heartbeatMonitor() {
         }
       }
     }
-
+    LOG(ERROR) << logPrefix()
+               << "Check if timeout.";
     if (computeDeltaMS(lastTimeHeartBeatCheck, currentTime) >=
         heartbeatTimeoutInSec_ * 1000) {
       // Check the heart beat of watchdog thread.
@@ -1612,6 +1615,8 @@ void ProcessGroupNCCL::heartbeatMonitor() {
     // process a request to dump the trace. only PG uid 0 will respond to dump
     // requests, but this is fine since all PG's feed into the same flight
     // recorder and dump. After dump, the training should continue.
+    LOG(ERROR) << logPrefix()
+               << "Should dump?.";
     if (dumpPipe.has_value() && dumpPipe->shouldDump()) {
       // best effort dump, not waiting for the dump here
       std::future<bool> fut = std::async(
@@ -1629,6 +1634,8 @@ void ProcessGroupNCCL::heartbeatMonitor() {
   //    TORCH_NCCL_LOG_CPP_STACK_ON_UNCLEAN_SHUTDOWN=0).
 
   // Dump the nccl trace (flight recorder).
+  LOG(ERROR) << logPrefix()
+             << "Should dump nccl trace?";
   if (checkDumpSignal && shouldDump_.load()) {
     // Store debug info to storage if no other thread does it. (By default to
     // local disk)
